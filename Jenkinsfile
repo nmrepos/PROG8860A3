@@ -48,8 +48,8 @@ pipeline {
       steps {
         powershell '''
           az functionapp config appsettings set `
-            --resource-group %RESOURCE_GROUP% `
-            --name %FUNCTION_APP_NAME% `
+            --resource-group $env:RESOURCE_GROUP `
+            --name $env:FUNCTION_APP_NAME `
             --settings `
               FUNCTIONS_WORKER_RUNTIME=python `
               FUNCTIONS_EXTENSION_VERSION=~4 `
@@ -65,15 +65,15 @@ pipeline {
       steps {
         // delay to avoid SCM restart conflicts
         powershell 'Start-Sleep -Seconds 30'
-        // deploy with remote build
-        powershell 'az functionapp deployment source config-zip --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --src function.zip --build-remote'
+        // deploy with remote build using PowerShell env variables
+        powershell 'az functionapp deployment source config-zip --resource-group $env:RESOURCE_GROUP --name $env:FUNCTION_APP_NAME --src function.zip --build-remote'
       }
     }
 
     stage('Smoke Test') {
       steps {
         bat '''
-          sleep 60
+          timeout /T 60 /NOBREAK
           FOR /F "delims=" %%H IN ('az functionapp show --name %FUNCTION_APP_NAME% --resource-group %RESOURCE_GROUP% --query defaultHostName -o tsv') DO set HOST=%%H
           curl -i "https://%HOST%/api/MyFunction?name=CI_CD"
         '''
