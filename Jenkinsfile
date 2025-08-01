@@ -31,10 +31,9 @@ pipeline {
 
     stage('Archive') {
       steps {
-        // package function app folder NMS3 with intact structure
+        // package function app with folder structure intact
         powershell '''
-          Compress-Archive -Path 'NMS3' -DestinationPath function.zip -Force
-          Compress-Archive -Path 'host.json','requirements.txt' -DestinationPath function.zip -Update
+          Compress-Archive -Path NMS3,host.json,requirements.txt -DestinationPath function.zip -Force
         '''
         archiveArtifacts artifacts: 'function.zip'
       }
@@ -43,7 +42,7 @@ pipeline {
 
     stage('Deploy') {
       steps {
-        // deploy with Azure CLI zip deployment to preserve function folder
+        // use Azure CLI zip deployment
         powershell 'Start-Sleep -Seconds 30'
         powershell '''
           az functionapp deployment source config-zip `

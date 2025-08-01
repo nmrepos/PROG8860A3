@@ -3,7 +3,7 @@ import sys
 import os
 
 # Add the function folder to the path for import
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'MyFunction'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'NMS3'))
 
 import __init__ as myfunc  # Import the function module
 
