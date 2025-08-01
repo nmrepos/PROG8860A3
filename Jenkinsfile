@@ -57,13 +57,15 @@ pipeline {
               WEBSITE_RUN_FROM_PACKAGE=1
         '''
         // allow time for settings to propagate in Azure
-        powershell 'Start-Sleep -Seconds 30'
+        powershell 'Start-Sleep -Seconds 60'
       }
     }
 
     stage('Deploy') {
       steps {
-        // use PowerShell to ensure consistency with setting commands
+        // delay to avoid SCM restart conflicts
+        powershell 'Start-Sleep -Seconds 30'
+        // deploy with remote build
         powershell 'az functionapp deployment source config-zip --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --src function.zip --build-remote'
       }
     }
