@@ -46,15 +46,25 @@ pipeline {
 
     stage('Enable Build & Run-From-Package') {
       steps {
-        powershell 'az functionapp config appsettings set --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --settings FUNCTIONS_WORKER_RUNTIME=python'
-        powershell 'az functionapp config appsettings set --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --settings FUNCTIONS_EXTENSION_VERSION=~4'
-        powershell 'az functionapp config appsettings set --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true'
+        powershell '''
+          az functionapp config appsettings set `
+            --resource-group %RESOURCE_GROUP% `
+            --name %FUNCTION_APP_NAME% `
+            --settings `
+              FUNCTIONS_WORKER_RUNTIME=python `
+              FUNCTIONS_EXTENSION_VERSION=~4 `
+              SCM_DO_BUILD_DURING_DEPLOYMENT=true `
+              WEBSITE_RUN_FROM_PACKAGE=1
+        '''
+        // allow time for settings to propagate in Azure
+        powershell 'Start-Sleep -Seconds 30'
       }
     }
 
     stage('Deploy') {
       steps {
-        bat 'az functionapp deployment source config-zip --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --src function.zip --build-remote'
+        // use PowerShell to ensure consistency with setting commands
+        powershell 'az functionapp deployment source config-zip --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --src function.zip --build-remote'
       }
     }
 
