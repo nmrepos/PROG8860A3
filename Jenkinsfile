@@ -46,9 +46,9 @@ pipeline {
 
     stage('Enable Build & Run-From-Package') {
       steps {
-        bat 'az functionapp config appsettings set --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --settings FUNCTIONS_WORKER_RUNTIME=python'
-        bat 'az functionapp config appsettings set --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --settings FUNCTIONS_EXTENSION_VERSION=~4'
-        bat 'az functionapp config appsettings set --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true'
+        powershell 'az functionapp config appsettings set --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --settings FUNCTIONS_WORKER_RUNTIME=python'
+        powershell 'az functionapp config appsettings set --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --settings FUNCTIONS_EXTENSION_VERSION=~4'
+        powershell 'az functionapp config appsettings set --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true'
       }
     }
 
@@ -61,6 +61,7 @@ pipeline {
     stage('Smoke Test') {
       steps {
         bat '''
+          sleep 60
           FOR /F "delims=" %%H IN ('az functionapp show --name %FUNCTION_APP_NAME% --resource-group %RESOURCE_GROUP% --query defaultHostName -o tsv') DO set HOST=%%H
           curl -i "https://%HOST%/api/MyFunction?name=CI_CD"
         '''
