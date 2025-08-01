@@ -52,7 +52,7 @@ pipeline {
 
     stage('Deploy') {
       steps {
-        bat 'az functionapp deployment source config-zip --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --src function.zip'
+        bat 'az functionapp deployment source config-zip --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --src function.zip --build-remote'
       }
     }
 
