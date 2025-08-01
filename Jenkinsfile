@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh '''
+                bat '''
                     python --version
                     python -m pip install --upgrade pip
                     python -m pip install -r requirements.txt
@@ -21,7 +21,7 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh '''
+                bat '''
                     python -m pip install pytest
                     pytest
                 '''
@@ -29,17 +29,17 @@ pipeline {
         }
         stage('Archive') {
             steps {
-                sh '''
-                    zip -r function.zip . -x Jenkinsfile
+                bat '''
+                    powershell Compress-Archive -Path * -DestinationPath function.zip -Force
                 '''
                 archiveArtifacts artifacts: 'function.zip'
             }
         }
         stage('Deploy') {
             steps {
-                sh '''
-                    az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                    az functionapp deployment source config-zip --resource-group $RESOURCE_GROUP --name $FUNCTION_APP_NAME --src function.zip
+                bat '''
+                    az login --service-principal -u %AZURE_CLIENT_ID% -p %AZURE_CLIENT_SECRET% --tenant %AZURE_TENANT_ID%
+                    az functionapp deployment source config-zip --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --src function.zip
                 '''
             }
         }
