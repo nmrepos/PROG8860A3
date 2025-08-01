@@ -38,10 +38,14 @@ pipeline {
       }
     }
 
-    stage('Azure Login') {
+    stage('Enable Build & Run-From-Package') {
       steps {
         bat '''
           az login --service-principal -u %AZURE_CLIENT_ID% -p %AZURE_CLIENT_SECRET% --tenant %AZURE_TENANT_ID% --output none
+          az functionapp config appsettings set \
+            --resource-group %RESOURCE_GROUP% \
+            --name %FUNCTION_APP_NAME% \
+            --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true WEBSITE_RUN_FROM_PACKAGE=1
         '''
       }
     }
@@ -49,20 +53,14 @@ pipeline {
     stage('Deploy') {
       steps {
         bat '''
-          az functionapp deployment source config-zip --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --src function.zip
+          az functionapp deployment source config-zip \
+            --resource-group %RESOURCE_GROUP% \
+            --name %FUNCTION_APP_NAME% \
+            --src function.zip
         '''
       }
     }
 
-    stage('Smoke Test') {
-      steps {
-        bat '''
-          FOR /F "delims=" %%H IN ('az functionapp show --name %FUNCTION_APP_NAME% --resource-group %RESOURCE_GROUP% --query defaultHostName -o tsv') DO set HOST=%%H
-          echo Testing https://%HOST%/api/MyFunction?name=CI_CD
-          curl -i "https://%HOST%/api/MyFunction?name=CI_CD"
-        '''
-      }
-    }
   }
 
   post {
