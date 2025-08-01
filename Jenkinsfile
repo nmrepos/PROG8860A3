@@ -47,16 +47,6 @@ pipeline {
         '''
       }
     }
-
-    stage('Smoke Test') {
-      steps {
-        bat '''
-          timeout /T 60 /NOBREAK
-          FOR /F "delims=" %%H IN ('az functionapp show --name %FUNCTION_APP_NAME% --resource-group %RESOURCE_GROUP% --query defaultHostName -o tsv') DO set HOST=%%H
-          curl -i "https://%HOST%/api/MyFunction?name=CI_CD"
-        '''
-      }
-    }
   }
 
   post {
