@@ -63,10 +63,14 @@ pipeline {
 
     stage('Deploy') {
       steps {
-        // delay to avoid SCM restart conflicts
-        powershell 'Start-Sleep -Seconds 30'
-        // deploy with remote build using PowerShell env variables
-        powershell 'az functionapp deployment source config-zip --resource-group $env:RESOURCE_GROUP --name $env:FUNCTION_APP_NAME --src function.zip --build-remote'
+        // deploy using Azure App Service plugin
+        azureWebAppPublish(
+          azureCredentialsId: 'azure-client-id',
+          resourceGroup: env.RESOURCE_GROUP,
+          appName: env.FUNCTION_APP_NAME,
+          filePath: 'function.zip',
+          deploymentMethod: 'zip'
+        )
       }
     }
 
