@@ -17,6 +17,10 @@ pipeline {
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
         '''
+        powershell '''
+          Compress-Archive -Path NMS3,host.json,requirements.txt -DestinationPath function.zip -Force
+        '''
+        archiveArtifacts artifacts: 'function.zip'
       }
     }
 
@@ -26,16 +30,6 @@ pipeline {
           python -m pip install pytest
           pytest
         '''
-      }
-    }
-
-    stage('Archive') {
-      steps {
-        // package function app with folder structure intact
-        powershell '''
-          Compress-Archive -Path NMS3,host.json,requirements.txt -DestinationPath function.zip -Force
-        '''
-        archiveArtifacts artifacts: 'function.zip'
       }
     }
 
