@@ -46,23 +46,13 @@ pipeline {
 
     stage('Enable Build & Run-From-Package') {
       steps {
-        bat '''
-          az functionapp config appsettings set \
-            --resource-group %RESOURCE_GROUP% \
-            --name %FUNCTION_APP_NAME% \
-            --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true WEBSITE_RUN_FROM_PACKAGE=1
-        '''
+        bat 'az functionapp config appsettings set --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true WEBSITE_RUN_FROM_PACKAGE=1'
       }
     }
 
     stage('Deploy') {
       steps {
-        bat '''
-          az functionapp deployment source config-zip \
-            --resource-group %RESOURCE_GROUP% \
-            --name %FUNCTION_APP_NAME% \
-            --src function.zip
-        '''
+        bat 'az functionapp deployment source config-zip --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --src function.zip'
       }
     }
 
