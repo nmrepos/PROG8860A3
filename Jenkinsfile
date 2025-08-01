@@ -46,12 +46,7 @@ pipeline {
 
     stage('Enable Build & Run-From-Package') {
       steps {
-        bat '''
-          az functionapp config appsettings set --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --settings FUNCTIONS_WORKER_RUNTIME=python
-          az functionapp config appsettings set --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --settings FUNCTIONS_EXTENSION_VERSION=~4
-          az functionapp config appsettings set --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true
-          az functionapp config appsettings set --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --settings WEBSITE_RUN_FROM_PACKAGE=1
-        '''
+        bat 'az functionapp config appsettings set --resource-group %RESOURCE_GROUP% --name %FUNCTION_APP_NAME% --settings "FUNCTIONS_WORKER_RUNTIME=python" "FUNCTIONS_EXTENSION_VERSION=~4" "SCM_DO_BUILD_DURING_DEPLOYMENT=true" "WEBSITE_RUN_FROM_PACKAGE=1"'
       }
     }
 
