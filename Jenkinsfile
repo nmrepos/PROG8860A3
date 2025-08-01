@@ -68,8 +68,7 @@ pipeline {
           azureCredentialsId: 'azure-client-id',
           resourceGroup: env.RESOURCE_GROUP,
           appName: env.FUNCTION_APP_NAME,
-          filePath: 'function.zip',
-          deploymentMethod: 'zip'
+          filePath: 'function.zip'
         )
       }
     }
