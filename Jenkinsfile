@@ -65,7 +65,7 @@ pipeline {
       steps {
         // deploy using Azure App Service plugin
         azureWebAppPublish(
-          azureCredentialsId: 'azure-client-id',
+          azureCredentialsId: 'azure-sp-creds', // replace with your actual Azure SP credential ID
           resourceGroup: env.RESOURCE_GROUP,
           appName: env.FUNCTION_APP_NAME,
           filePath: 'function.zip'
