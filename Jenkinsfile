@@ -31,45 +31,29 @@ pipeline {
 
     stage('Archive') {
       steps {
-        bat '''
-          powershell Compress-Archive -Path MyFunction,host.json,requirements.txt -DestinationPath function.zip -Force
+        // create zip with MyFunction contents at root
+        powershell '''
+          Push-Location MyFunction
+          Compress-Archive -Path * -DestinationPath ../function.zip -Force
+          Pop-Location
+          Compress-Archive -Path host.json,requirements.txt -DestinationPath function.zip -Update
         '''
         archiveArtifacts artifacts: 'function.zip'
       }
     }
 
-    stage('Azure Login') {
-      steps {
-        bat 'az login --service-principal -u %AZURE_CLIENT_ID% -p %AZURE_CLIENT_SECRET% --tenant %AZURE_TENANT_ID% --output none'
-      }
-    }
-
-    stage('Enable Build & Run-From-Package') {
-      steps {
-        powershell '''
-          az functionapp config appsettings set `
-            --resource-group $env:RESOURCE_GROUP `
-            --name $env:FUNCTION_APP_NAME `
-            --settings `
-              FUNCTIONS_WORKER_RUNTIME=python `
-              FUNCTIONS_EXTENSION_VERSION=~4 `
-              SCM_DO_BUILD_DURING_DEPLOYMENT=true `
-              WEBSITE_RUN_FROM_PACKAGE=1
-        '''
-        // allow time for settings to propagate in Azure
-        powershell 'Start-Sleep -Seconds 60'
-      }
-    }
 
     stage('Deploy') {
       steps {
-        // deploy using Azure App Service plugin
-        azureWebAppPublish(
-          azureCredentialsId: '3d07d71d-c0de-4355-be94-31b1cc9204c7', // replace with your actual Azure SP credential ID
-          resourceGroup: env.RESOURCE_GROUP,
-          appName: env.FUNCTION_APP_NAME,
-          filePath: 'function.zip'
-        )
+        // use Azure CLI zip deployment
+        powershell 'Start-Sleep -Seconds 30'
+        powershell '''
+          az functionapp deployment source config-zip `
+            --resource-group $env:RESOURCE_GROUP `
+            --name $env:FUNCTION_APP_NAME `
+            --src function.zip `
+            --build-remote
+        '''
       }
     }
 
