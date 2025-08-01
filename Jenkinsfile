@@ -31,12 +31,9 @@ pipeline {
 
     stage('Archive') {
       steps {
-        // create zip with MyFunction contents at root
+        // package function app with folder structure intact
         powershell '''
-          Push-Location MyFunction
-          Compress-Archive -Path * -DestinationPath ../function.zip -Force
-          Pop-Location
-          Compress-Archive -Path host.json,requirements.txt -DestinationPath function.zip -Update
+          Compress-Archive -Path MyFunction,host.json,requirements.txt -DestinationPath function.zip -Force
         '''
         archiveArtifacts artifacts: 'function.zip'
       }
